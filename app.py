@@ -1,59 +1,38 @@
-from PIL import Image
-import tkinter as tk
-
-# Открыть изображение карты
-map_image = Image.open('map.png')
-
-# Создать окно для отображения карты
-root = tk.Tk()
-canvas = tk.Canvas(root, width=map_image.width, height=map_image.height)
-canvas.pack()
-
-# Отобразить карту на экране
-image_tk = tk.PhotoImage(file='map.png')
-canvas.create_image(0, 0, anchor=tk.NW, image=image_tk)
-
-# координаты углов карты
-lat1, lon1 = 55.753215, 37.622504  # верхняя левая точка
-lat2, lon2 = 55.745405, 37.636101  # нижняя правая точка
-
-# Размеры карты в пикселях
-map_width, map_height = map_image.size
+from flask import Flask, render_template, request, jsonify
 
 
-def pixel_to_coords(x, y):
-    # Размеры карты в пикселях
-    map_width, map_height = map_image.size
-
-    # Широта и долгота углов карты
-    lat1, lon1 = 55.753215, 37.622504  # верхняя левая точка
-    lat2, lon2 = 55.745405, 37.636101  # нижняя правая точка
-
-    # Преобразование координат из пикселей в градусы широты и долготы
-    lat = lat1 - (lat1 - lat2) * y / map_height
-    lon = lon1 + (lon2 - lon1) * x / map_width
-
-    return lat, lon
-
-# Обработчик событий клика мыши на изображении
-def on_click(event):
-    # Получить координаты точки клика
-    x = event.x
-    y = event.y
-
-    # Преобразовать координаты точки в координаты на карте
-    map_x = x * map_image.width // canvas.winfo_width()
-    map_y = y * map_image.height // canvas.winfo_height()
-
-    # Преобразовать координаты участка карты в градусы широты и долготы
-    lat, lon = pixel_to_coords(map_x, map_y)
-
-    # Вывести координаты участка карты
-    print('Координаты участка карты: ({}, {})'.format(lat, lon))
+app = Flask(__name__)
 
 
-# Привязать обработчик событий клика мыши к изображению
-canvas.bind('<Button-1>', on_click)
+@app.route('/get_graphs_parameters', methods=['POST'])
+def get_graphs_parameters():
+    parameters_for_graph = request.get_json()
+    print(parameters_for_graph)
+    # здесь можно выполнить какие-то действия с полученными данными
 
-# Запустить главный цикл приложения
-root.mainloop()
+    return jsonify("/static/img/graph.png")
+
+
+@app.route('/get_DBSCAN_parameters', methods=['POST'])
+def get_DBSCAN_parameters():
+    parameters_for_DBSCAN = request.get_json()
+    print(parameters_for_DBSCAN)
+    # здесь можно выполнить какие-то действия с полученными данными
+
+    return jsonify(parameters_for_DBSCAN)
+
+
+@app.route('/')
+def index():
+    clustering_params = {'weight_distance': 2, 'weight_speed': 1, 'weight_course': 20, 'eps': 0.29, 'min_samples': 50}
+    graph_params = {'distance_delta': 50, 'angle_of_vision': 15, 'weight_time_graph': 1, 'weight_course_graph': 3}
+
+    return render_template('index.html',
+                           clustering_params=clustering_params,
+                           graph_params=graph_params,
+                           int=int,
+                           len=len
+                           )
+
+    if __name__ == '__main__':
+        app.run(debug=True)
