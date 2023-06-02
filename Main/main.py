@@ -52,7 +52,7 @@ def call_clustering(clustering_params={}):
         with open('./Main/map_builder_dump.pickle', 'rb') as load_file:
             map_builder_loaded = pickle.load(load_file)
             if map_builder_loaded.clustering_params == clustering_params:
-                pass
+                return map_builder_loaded.create_clustered_map()
             else:
                 map_builder_loaded.clustering_params = clustering_params
                 clustering(clustering_params)
@@ -63,17 +63,16 @@ def call_clustering(clustering_params={}):
             map_builder_loaded = pickle.load(load_file)
             map_builder_loaded.clustering_params = clustering_params
 
-    # Обнуляем несериализуемые pickle поля
-    map_builder_loaded.map_image = None
-    map_builder_loaded.context = None
-    # Сохраняем дамп объекта map_builder
-    with open('./Main/map_builder_dump.pickle', 'wb') as dump_file:
-        pickle.dump(map_builder_loaded, dump_file, protocol=pickle.HIGHEST_PROTOCOL)
+            # Обнуляем несериализуемые pickle поля
+            map_builder_loaded.map_image = None
+            map_builder_loaded.context = None
+            # Сохраняем дамп объекта map_builder
+        with open('./Main/map_builder_dump.pickle', 'wb') as dump_file:
+            pickle.dump(map_builder_loaded, dump_file, protocol=pickle.HIGHEST_PROTOCOL)
 
 
 def call_find_path(graph_params={}, coords={}):
-    # graph_params = {'distance_delta': 120, 'angle_of_vision': 30, 'weight_time_graph': 1, 'weight_course_graph': 0.01}
-
+    # graph_params = {'distance_delta': 120, 'angle_of_vision': 30, 'weight_time_graph': 1, 'weight_course_graph': 0.01
     try:
         with open('./Main/map_builder_dump.pickle', 'rb') as load_file:
             map_builder_loaded = pickle.load(load_file)
