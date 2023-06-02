@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-
+import time
 
 app = Flask(__name__)
 
@@ -7,7 +7,6 @@ app = Flask(__name__)
 @app.route('/get_graphs_parameters', methods=['POST'])
 def get_graphs_parameters():
     parameters_for_graph = request.get_json()
-    print(parameters_for_graph)
     # здесь можно выполнить какие-то действия с полученными данными
 
     return jsonify("/static/img/graph.png")
@@ -16,9 +15,8 @@ def get_graphs_parameters():
 @app.route('/get_DBSCAN_parameters', methods=['POST'])
 def get_DBSCAN_parameters():
     parameters_for_DBSCAN = request.get_json()
-    print(parameters_for_DBSCAN)
     # здесь можно выполнить какие-то действия с полученными данными
-
+    time.sleep(5)
     return jsonify(parameters_for_DBSCAN)
 
 
@@ -34,5 +32,5 @@ def index():
                            len=len
                            )
 
-    if __name__ == '__main__':
-        app.run(debug=True)
+if __name__ == '__main__':
+    app.run(debug=True)
