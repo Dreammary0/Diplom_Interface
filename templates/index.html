@@ -110,22 +110,6 @@
         source: new ol.source.Vector(),
     });
 
-    const retinaPixelRatio = 2;
-    const retinaSource = new ol.source.Zoomify({
-        url: '/static/images/clean/all_merged_with_points.png',
-        size: [5983, 4143],
-        crossOrigin: 'anonymous',
-        zDirection: -1, // Ensure we get a tile with the screen resolution or higher
-        tilePixelRatio: retinaPixelRatio, // Display retina tiles
-        tileSize: 256 / retinaPixelRatio, // from a higher zoom level
-        projection: projection,
-        extent: extent,
-    });
-    const layer = new ol.layer.Tile({
-        source: retinaSource,
-        visible: true,
-        name: 'Ships',
-    });
     var map = new ol.Map({
         pixelRatio: 3,
         target: 'map', // ID элемента на странице, где отобразить карту
@@ -135,7 +119,16 @@
                 source: new ol.source.OSM(),
                 type: 'base'
             }),
-            layer
+            new ol.layer.Image({
+                name: 'Ships',
+                visible: true,
+                source: new ol.source.ImageStatic({
+                    url: '/static/images/clean/all_merged_with_points.png', // карта с кораблями
+                    imageSize: [5983, 4143], // Размер изображения
+                    projection: projection,
+                    imageExtent: extent
+                })
+            }),
         ],
         view: new ol.View({
             projection: projection,
@@ -363,8 +356,8 @@
             if (!allFieldsFilled) return alert("Остались незаполненные поля: " + alert_list);
             if (!allFieldsFilled) return;
 
-            if (parameters_for_graph['start_coords'] === parameters_for_graph['end_coords']) {
-                return alert("Упс! Начальная точка совпадает с конечной. ")
+            if (parameters_for_graph['start_coords'] === parameters_for_graph['end_coords']){
+                 return alert("Упс! Начальная точка совпадает с конечной. ")
             }
 
             $("#loader").show();
