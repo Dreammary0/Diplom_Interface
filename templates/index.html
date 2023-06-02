@@ -18,6 +18,7 @@
 </head>
 
 <body>
+<img src="/images/clustered/clustered_all_merged_path.png">
 <div class="container">
     <div id="loader" style="display:none;"></div>
 
@@ -122,8 +123,8 @@
                 name: 'Ships',
                 visible: true,
                 source: new ol.source.ImageStatic({
-                    url: '/CODE/images/clean/all_merged_with_points.png', // карта с кораблями
-                    imageSize: [5893, 4143], // Размер изображения
+                    url: '/static/img/map/all_merged_with_points.png', // карта с кораблями
+                    imageSize: [5983, 4143], // Размер изображения
                     projection: projection,
                     imageExtent: extent,
                 })
@@ -210,9 +211,10 @@
             map.on('click', function (evt) {
                 let layers = map.getLayers().getArray();
                 let coords = ol.proj.toLonLat(evt.coordinate).map(coord => coord.toFixed(6));
-
+                var test_coords = map.getPixelFromCoordinate(evt.coordinate).toString();
                 if (onfocus === 1) {
                     startPointInput.value = coords.toString();
+
                     var StartPointLayer = null;
 
                     for (let i = 0; i < layers.length; i++) {
@@ -409,7 +411,6 @@
             }
             parameters_for_DBSCAN[field] = value;
         });
-
         // Если не все поля заполнены, выходим из функции
         if (!allFieldsFilled) return;
         $("#loader").show();
