@@ -101,6 +101,7 @@
 <script type="text/javascript">
     //Создание карты
     var extent = [15522946.393668033, 5002641.018067474, 15751596.627757415, 5160979.444049783];
+    var newExtent = ol.extent.buffer(extent, -50000); // новый extent с уменьшенными границами
     var projection = new ol.proj.Projection({
         code: 'xkcd-image',
         units: 'pixels',
@@ -111,14 +112,9 @@
     });
 
     var map = new ol.Map({
-        pixelRatio: 3,
+        pixelRatio: 2,
         target: 'map', // ID элемента на странице, где отобразить карту
         layers: [
-            new ol.layer.Tile({
-                title: 'Open Street Map',
-                source: new ol.source.OSM(),
-                type: 'base'
-            }),
             new ol.layer.Image({
                 name: 'Ships',
                 visible: true,
@@ -126,18 +122,20 @@
                     url: '/static/images/clean/all_merged_with_points.png', // карта с кораблями
                     imageSize: [5983, 4143], // Размер изображения
                     projection: projection,
-                    imageExtent: extent
+                    imageExtent: extent,
                 })
             }),
         ],
         view: new ol.View({
             projection: projection,
             center: ol.extent.getCenter(extent), // Координаты центра карты
-            zoom: 1, // Масштаб карты
-            minZoom: 1,
-            maxZoom: 4,
+            zoom: 2, // Масштаб карты
+            minZoom: 2,
+            maxZoom: 5,
+            extent: newExtent
         }),
         controls: ol.control.defaults().extend([
+            new ol.control.ZoomSlider(),
             new ol.control.FullScreen(),
             // Добавление элемента управления для легенды
             new ol.control.Control({
@@ -145,18 +143,44 @@
             })
         ])
     });
-    map.setView(
-        new ol.View({
-            center: ol.extent.getCenter(extent),
-            extent: map.getView().calculateExtent(map.getSize()),
-            zoom: 9.5,
-            minZoom: 9.5,
-            maxZoom: 12
-        })
-    );
+
+
+
+    //Функция границ карты (проблемы при наложении других изобраажений - возомжно, надо отформатировать)
+    {#var extent = map.getView().calculateExtent();#}
+    {#var resolution = 0;#}
+    {#function resChange() {#}
+    {#    var newResolution = map.getView().getResolution();#}
+    {#    console.log(newResolution)#}
+    {#    if (resolution == 0 || Math.abs((newResolution - resolution) / resolution) > 0.001) {#}
+    {#        resolution = newResolution;#}
+    {#        var width = map.getSize()[0] * resolution;#}
+    {#        var height = map.getSize()[1] * resolution;#}
+    {#        var view = new ol.View({#}
+    {#            projection: map.getView().getProjection(),#}
+    {#            extent: [extent[0] + (width / 2), extent[1] + (height / 2), extent[2] - (width / 2), extent[3] - (height / 2)],#}
+    {#            center: map.getView().getCenter(),#}
+    {#            resolution: resolution,#}
+    {#            maxZoom: map.getView().getMaxZoom(),#}
+    {#            minZoom: map.getView().getMinZoom()#}
+    {#        });#}
+    {#        view.on('change:resolution', resChange);#}
+    {#        map.setView(view);#}
+    {#    }#}
+    //}
+    {#resChange();#}
+
+
+
     map.addControl(new ol.control.LayerSwitcher({
         reverse: false
     }));
+
+    var ZoomSlider = new ol.control.ZoomSlider({
+        maxResolution: 10, // максимальный масштаб, при котором будет отображен ползунок зума
+        minResolution: 1000, // минимальный масштаб, при котором будет отображен ползунок зума
+    });
+    map.addControl(ZoomSlider);
 
     //Создание легенды
     var legendShown = false;
@@ -189,12 +213,9 @@
     map.getViewport().appendChild(legend);
 
     //Забавы с курсором
-
     map.getViewport().style.cursor = "auto";
-
     //Ладошка
     {#map.getViewport().style.cursor = "-webkit-grab";#}
-
     map.on('pointerdrag', function (evt) {
         map.getViewport().style.cursor = "-webkit-grabbing";
     });
@@ -233,7 +254,6 @@
             map.on('click', function (evt) {
                 let layers = map.getLayers().getArray();
                 let coords = ol.proj.toLonLat(evt.coordinate).map(coord => coord.toFixed(6));
-
 
                 if (onfocus === 1) {
                     startPointInput.value = coords.toString();
@@ -356,8 +376,8 @@
             if (!allFieldsFilled) return alert("Остались незаполненные поля: " + alert_list);
             if (!allFieldsFilled) return;
 
-            if (parameters_for_graph['start_coords'] === parameters_for_graph['end_coords']){
-                 return alert("Упс! Начальная точка совпадает с конечной. ")
+            if (parameters_for_graph['start_coords'] === parameters_for_graph['end_coords']) {
+                return alert("Упс! Начальная точка совпадает с конечной. ")
             }
 
             $("#loader").show();
@@ -530,6 +550,7 @@
                 map.addLayer(PolygonsForGraphLayer);
                 document.getElementById("start_coords").value = "";
                 document.getElementById("end_coords").value = "";
+
 
                 //Легенда с данными из вычислительной части
                 let clusters_data = data[1];

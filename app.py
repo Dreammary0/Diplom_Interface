@@ -1,6 +1,16 @@
 from flask import Flask, render_template, request, jsonify
 import time
 from Main.main import *
+from PIL import Image
+import os
+
+def compress_image(image_path, output_folder, quality):
+    # Открываем изображение для сжатия
+    with Image.open(image_path) as img:
+        # Сжимаем изображение с помощью Pillow
+        img.save(os.path.join(output_folder, os.path.basename(image_path)),
+                 optimize=True,
+                 quality=quality)
 
 app = Flask(__name__)
 
@@ -21,6 +31,7 @@ def get_graphs_parameters():
         coords[key] = float(coords[key])
 
     grapg_data = call_find_path(parameters_for_graph, coords)
+    compress_image(grapg_data[0], 'static\\logs', 10)
     return jsonify(grapg_data)
 
 def get_coordinates(coords):
