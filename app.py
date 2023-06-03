@@ -31,7 +31,7 @@ def get_graphs_parameters():
         coords[key] = float(coords[key])
 
     grapg_data = call_find_path(parameters_for_graph, coords)
-    compress_image(grapg_data[0], 'static\\logs', 10)
+    # compress_image(grapg_data[0], 'static\\logs', 0)
     return jsonify(grapg_data)
 
 def get_coordinates(coords):
