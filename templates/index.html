@@ -101,7 +101,6 @@
 <script type="text/javascript">
     //Создание карты
     var extent = [15522946.393668033, 5002641.018067474, 15751596.627757415, 5160979.444049783];
-    var newExtent = ol.extent.buffer(extent, -50000); // новый extent с уменьшенными границами
     var projection = new ol.proj.Projection({
         code: 'xkcd-image',
         units: 'pixels',
@@ -132,7 +131,7 @@
             zoom: 2, // Масштаб карты
             minZoom: 2,
             maxZoom: 5,
-            extent: newExtent
+            extent: extent
         }),
         controls: ol.control.defaults().extend([
             new ol.control.ZoomSlider(),
